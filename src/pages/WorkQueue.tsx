@@ -289,7 +289,7 @@ export default function WorkQueue() {
   }).sort((a, b) => {
     const slaOrder = { Breached: 0, 'At Risk': 1, 'On Track': 2 };
     const priOrder = { Critical: 0, High: 1, Medium: 2, Low: 3 };
-    return (slaOrder[a.slaStatus] - slaOrder[b.slaStatus]) || (priOrder[a.priority] - priOrder[b.priority]);
+    return (priOrder[a.priority] - priOrder[b.priority]) || (slaOrder[a.slaStatus] - slaOrder[b.slaStatus]);
   });
 
   const breachedCount = workItems.filter(w => w.slaStatus === 'Breached').length;
