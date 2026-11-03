@@ -47,6 +47,16 @@ export default function ProcessLibrary() {
         </Button>
       </Box>
 
+      <Paper elevation={0} sx={{ p: 2, mb: 3, borderRadius: 2, border: `1px solid ${wfColors.divider}`, bgcolor: wfColors.bgDefault }}>
+        <Typography sx={{ fontWeight: 700, fontSize: '0.8125rem', color: wfColors.slate900, mb: 0.75 }}>How to add a workflow in the demo</Typography>
+        <Typography component="ol" sx={{ m: 0, pl: 2.5, fontSize: '0.8125rem', color: wfColors.slate700, lineHeight: 1.7 }}>
+          <li>Click <b>Configure</b> on a workflow below.</li>
+          <li>Step through the six tabs: basics, steps, roles and queues, approvals, integrations, then review.</li>
+          <li><b>Save draft</b> keeps it for later. <b>Activate Workflow</b> on the review step makes it live.</li>
+          <li>Live workflows keep their status after a page reload, in this browser. <b>Reset demo</b> clears everything for the next run.</li>
+        </Typography>
+      </Paper>
+
       <Grid container spacing={2.5}>
         {templates.map(t => {
           const cfg = configs[t.id];

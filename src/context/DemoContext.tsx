@@ -170,6 +170,7 @@ export type DocumentNote = {
 type DemoContextValue = {
   configs: Record<string, ProcessConfig>;
   saveConfig: (cfg: ProcessConfig) => void;
+  saveDraft: (cfg: ProcessConfig) => void;
   walkthrough: WalkthroughState | null;
   startWalkthrough: () => void;
   advanceWalkthrough: (action: string, detail?: string, user?: string) => void;
@@ -255,6 +256,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       });
     },
     resetWalkthrough: () => setWalkthrough(null),
+    saveDraft: (cfg) => setConfigs(prev => ({ ...prev, [cfg.templateId]: { ...cfg, status: cfg.status === 'Active' ? 'Active' : 'Draft' } })),
     resetDemo: () => {
       try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
       setConfigs(buildInitialConfigs(region));

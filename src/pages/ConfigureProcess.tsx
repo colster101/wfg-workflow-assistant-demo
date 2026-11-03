@@ -24,7 +24,7 @@ export default function ConfigureProcess() {
 
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { configs, saveConfig } = useDemo();
+  const { configs, saveConfig, saveDraft } = useDemo();
   const { region } = useRegion();
 
   const template = id ? getRegionalTemplate(id, region) : undefined;
@@ -56,6 +56,12 @@ export default function ConfigureProcess() {
 
   function updateDraft(patch: Partial<ProcessConfig>) {
     setDraft(prev => prev ? { ...prev, ...patch } : prev);
+  }
+
+  function handleSaveDraft() {
+    if (!draft) return;
+    saveDraft(draft);
+    navigate('/library');
   }
 
   function handleActivate() {
@@ -132,14 +138,18 @@ export default function ConfigureProcess() {
           <Typography sx={{ fontSize: '0.8125rem', color: wfColors.slate500 }}>
             Step {active + 1} of {STEPS.length}
           </Typography>
-          {active < STEPS.length - 1 ? (
-            <Button variant="contained" endIcon={<ArrowForward />} onClick={() => setActive(a => Math.min(STEPS.length - 1, a + 1))}
-              sx={{ bgcolor: wfColors.primary, '&:hover': { bgcolor: '#065f46' } }}>
-              Continue
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button variant="outlined" onClick={handleSaveDraft}
+              sx={{ borderColor: wfColors.slate400, color: wfColors.slate700 }}>
+              Save draft
             </Button>
-          ) : (
-            <Box sx={{ width: 80 }} />
-          )}
+            {active < STEPS.length - 1 ? (
+              <Button variant="contained" endIcon={<ArrowForward />} onClick={() => setActive(a => Math.min(STEPS.length - 1, a + 1))}
+                sx={{ bgcolor: wfColors.primary, '&:hover': { bgcolor: '#065f46' } }}>
+                Continue
+              </Button>
+            ) : null}
+          </Box>
         </Box>
       </Paper>
     </Box>
