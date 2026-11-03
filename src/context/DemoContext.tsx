@@ -174,17 +174,49 @@ type DemoContextValue = {
   startWalkthrough: () => void;
   advanceWalkthrough: (action: string, detail?: string, user?: string) => void;
   resetWalkthrough: () => void;
+  resetDemo: () => void;
   documentNotes: Record<string, DocumentNote[]>;
   addDocumentNote: (docId: string, body: string, author: string) => void;
 };
 
 const DemoContext = createContext<DemoContextValue | undefined>(undefined);
 
+/* Activated workflows survive a page reload so the demo keeps what was
+   configured. Stored per browser; resetDemo() clears it for the next run. */
+const STORAGE_KEY = 'wfg-demo-configs-v1';
+
+function loadStoredConfigs(region: RegionPack): Record<string, ProcessConfig> {
+  const fresh = buildInitialConfigs(region);
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return fresh;
+    const stored = JSON.parse(raw) as Record<string, ProcessConfig>;
+    for (const id of Object.keys(fresh)) {
+      if (stored[id]) fresh[id] = stored[id];
+    }
+  } catch {
+    /* storage blocked or corrupt: fall back to defaults */
+  }
+  return fresh;
+}
+
+function saveStoredConfigs(configs: Record<string, ProcessConfig>) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(configs));
+  } catch {
+    /* storage unavailable: demo still works in memory */
+  }
+}
+
 export function DemoProvider({ children }: { children: ReactNode }) {
   const { region } = useRegion();
-  const [configs, setConfigs] = useState<Record<string, ProcessConfig>>(() => buildInitialConfigs(region));
+  const [configs, setConfigs] = useState<Record<string, ProcessConfig>>(() => loadStoredConfigs(region));
   const [walkthrough, setWalkthrough] = useState<WalkthroughState | null>(null);
   const [documentNotes, setDocumentNotes] = useState<Record<string, DocumentNote[]>>({});
+
+  useEffect(() => {
+    saveStoredConfigs(configs);
+  }, [configs]);
 
   useEffect(() => {
     setConfigs(prev => reapplyRegionalLabels(prev, region));
@@ -223,6 +255,12 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       });
     },
     resetWalkthrough: () => setWalkthrough(null),
+    resetDemo: () => {
+      try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+      setConfigs(buildInitialConfigs(region));
+      setWalkthrough(null);
+      setDocumentNotes({});
+    },
     documentNotes,
     addDocumentNote: (docId, body, author) => {
       setDocumentNotes(prev => ({

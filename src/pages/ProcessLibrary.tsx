@@ -4,7 +4,7 @@ import {
   Box, Typography, Paper, Chip, Grid, Button, alpha,
 } from '@mui/material';
 import {
-  CheckCircle, Edit as EditIcon, Add,
+  CheckCircle, Edit as EditIcon, Add, RestartAlt,
 } from '@mui/icons-material';
 import { wfColors } from '../theme';
 import { getRegionalTemplates } from '../data/templates';
@@ -26,7 +26,7 @@ export default function ProcessLibrary() {
   useEffect(() => { topRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' }); }, []);
 
   const navigate = useNavigate();
-  const { configs } = useDemo();
+  const { configs, resetDemo } = useDemo();
   const { region } = useRegion();
   const templates = useMemo(() => getRegionalTemplates(region), [region]);
 
@@ -40,7 +40,11 @@ export default function ProcessLibrary() {
             WFG distribution flows. Pick a template, review the stages and owners, then configure and activate.
           </Typography>
         </Box>
-
+        <Button variant="outlined" startIcon={<RestartAlt />}
+          onClick={() => { if (window.confirm('Reset the demo? Activated workflows will be cleared.')) resetDemo(); }}
+          sx={{ borderColor: wfColors.slate400, color: wfColors.slate700, whiteSpace: 'nowrap' }}>
+          Reset demo
+        </Button>
       </Box>
 
       <Grid container spacing={2.5}>
